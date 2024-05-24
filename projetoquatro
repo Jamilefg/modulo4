@@ -1,0 +1,51 @@
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+# Lista de tarefas (simulando um banco de dados)
+tarefas = []
+
+# Endpoint para criar uma nova tarefa
+@app.route('/tarefas', methods=['POST'])
+def criar_tarefa():
+    dados = request.get_json()
+    titulo = dados.get('titulo')
+    descricao = dados.get('descricao')
+
+    nova_tarefa = {'titulo': titulo, 'descricao': descricao}
+    tarefas.append(nova_tarefa)
+
+    return jsonify({'mensagem': 'Tarefa criada com sucesso.'}), 201
+
+# Endpoint para listar todas as tarefas
+@app.route('/tarefas', methods=['GET'])
+def listar_tarefas():
+    return jsonify(tarefas)
+
+# Endpoint para atualizar uma tarefa existente
+@app.route('/tarefas/<int:id>', methods=['PUT'])
+def atualizar_tarefa(id):
+    dados = request.get_json()
+    titulo = dados.get('titulo')
+    descricao = dados.get('descricao')
+
+    for tarefa in tarefas:
+        if tarefa.get('id') == id:
+            tarefa['titulo'] = titulo
+            tarefa['descricao'] = descricao
+            return jsonify({'mensagem': 'Tarefa atualizada com sucesso.'})
+
+    return jsonify({'mensagem': 'Tarefa não encontrada.'}), 404
+
+# Endpoint para deletar uma tarefa existente
+@app.route('/tarefas/<int:id>', methods=['DELETE'])
+def deletar_tarefa(id):
+    for tarefa in tarefas:
+        if tarefa.get('id') == id:
+            tarefas.remove(tarefa)
+            return jsonify({'mensagem': 'Tarefa deletada com sucesso.'})
+
+    return jsonify({'mensagem': 'Tarefa não encontrada.'}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
